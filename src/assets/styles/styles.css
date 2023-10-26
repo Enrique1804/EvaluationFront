@@ -1,0 +1,37 @@
+.table-controls {
+  display: flex;
+  align-items: center;
+  justify-content: right;
+  gap: 18px;
+}
+
+.MuiTextField-root {
+  flex-grow: 1;
+  margin-left: 10px;
+  max-width:20%;
+}
+
+.responsive-table-container {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.responsive-table {
+  width: 100%;
+  margin: 0;
+}
+
+/* Ajusta el ancho de las celdas según sea necesario */
+.responsive-table th,
+.responsive-table td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+/* Ajusta el margen y el ancho máximo del contenedor de la tabla */
+.responsive-table-container {
+  margin: 1rem 0;
+  max-width: 100%;
+}
