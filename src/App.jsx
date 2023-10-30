@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from "react";
 import ItemTable from "./assets/Components/ItemTable";
-import { ApolloClient, InMemoryCache, ApolloProvider, gql, createHttpLink } from "@apollo/client";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+  gql,
+  createHttpLink,
+} from "@apollo/client";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import ItemInfo from "./assets/Components/ItemInfo";
 
 const httpLink = createHttpLink({
@@ -22,7 +28,7 @@ export const itemsTabla = gql`
 `;
 
 export const infoItem = gql`
-  query itemInfo($itemId: Int!){
+  query itemInfo($itemId: Int!) {
     Item(itemId: $itemId) {
       itemId
       itemName
@@ -43,8 +49,9 @@ export default function App() {
       <Router>
         <div className="container">
           <Routes>
-            <Route path="/" element={<ItemTable />}/>
-            <Route path="/items/:itemId" element={<ItemInfo />}/>
+            <Route path="/" element={<Navigate to="/items" />} />
+            <Route path="/items" element={<ItemTable />} />
+            <Route path="/items/:itemId" element={<ItemInfo />} />
           </Routes>
         </div>
       </Router>

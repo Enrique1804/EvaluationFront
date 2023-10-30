@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import "../styles/styles.css";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { itemsTabla } from "../../App";
 import {
   Table,
@@ -29,11 +29,20 @@ const ItemTable = () => {
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState("");
   const [addingItem, setAddingItem] = useState(false);
+  const [deleItemMutation] = useMutation(mutation);
 
-  const { loading, error, data } = useQuery(itemsTabla);
+  const { loading, error, data, refetch } = useQuery(itemsTabla);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error...</p>;
+
+  const filteredItems = searchTerm
+    ? data.Items.filter((item) => item.itemName.includes(searchTerm))
+    : data.Items;
+
+  const itemsToDisplay = searchTerm
+    ? filteredItems
+    : filteredItems.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -45,7 +54,20 @@ const ItemTable = () => {
 
   const handleCloseItemForm = () => {
     setAddingItem(false);
+    refetch();
   };
+
+  const handleDeleteItem = async (itemId) => {
+    try{
+      const result = await deleItemMutation({
+        variables: {itemId},
+      });
+      console.log("Item eliminado", result);
+      refetch();
+    } catch (error) {
+      console.error("Error al eliminar el item", error);
+    }
+  }
 
   return (
     <Container maxWidth="xl">
@@ -67,7 +89,7 @@ const ItemTable = () => {
         </Button>
       </div>
       <Typography fontWeight="bold">
-        {Object.values(data.Items).length} items encontrados
+        {Object.values(itemsToDisplay).length} items encontrados
       </Typography>
       <TableContainer component={Paper} className="responsive-table-container">
         <Table className="responsive-table">
@@ -79,14 +101,14 @@ const ItemTable = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.Items.map((item) => (
+            {itemsToDisplay.map((item) => (
               <TableRow key={item.itemId}>
                 <TableCell>{item.itemId}</TableCell>
                 <TableCell>
                   <Link to={`/items/${item.itemId}`}>{item.itemName}</Link>
                 </TableCell>
                 <TableCell>
-                  <IconButton color="secondary">
+                  <IconButton color="secondary" onClick={() => handleDeleteItem(item.itemId)}>
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
@@ -99,6 +121,7 @@ const ItemTable = () => {
         count={Math.ceil(Object.values(data.Items).length / itemsPerPage)}
         page={page}
         onChange={handleChangePage}
+        color="primary"
       />
       <Dialog
         open={addingItem}
@@ -106,7 +129,7 @@ const ItemTable = () => {
         maxWidth="sm"
         fullWidth
       >
-        <AddItem />
+        <AddItem onClose={handleCloseItemForm}/>
       </Dialog>
     </Container>
   );

@@ -1,22 +1,45 @@
+import { gql, useMutation } from "@apollo/client";
 import { Button, Container, Grid, TextField, Typography } from "@mui/material";
 import { useState } from "react";
 
-const AddItem = () => {
+const AddItem = ({ onClose }) => {
   const [itemId, setItemId] = useState("");
   const [itemName, setItemName] = useState("");
   const [description, setDescription] = useState("");
-  const [locationId, setLocationId] = useState("");
   const [state, setState] = useState("");
   const [address, setAddress] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [createItemMutation] = useMutation(mutation);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const location = {
+      state,
+      address,
+      phoneNumber,
+    };
+    try {
+      const { data } = await createItemMutation({
+        variables: {
+          itemId: parseInt(itemId),
+          itemName,
+          description,
+          location,
+        },
+      });
+      onClose();
+      console.log("Item creado");
+    } catch (error) {
+      console.error("Error al crear el item");
+    }
   };
 
   return (
-    <Container maxWidth="sm" sx={{'& .MuiTextField-root': { m: 1, width: '25ch' },}}>
-      <br/>
+    <Container
+      maxWidth="sm"
+      sx={{ "& .MuiTextField-root": { m: 1, width: "25ch" } }}
+    >
+      <br />
       <Typography>Add a new Item</Typography>
       <Typography>Item Details</Typography>
       <form onSubmit={handleSubmit}>
@@ -45,13 +68,6 @@ const AddItem = () => {
         </Grid>
         <Typography>Location Details</Typography>
         <Grid item xs={6}>
-          <TextField
-            label="Location Id"
-            variant="outlined"
-            fullWidth
-            value={locationId}
-            onChange={(e) => setLocationId(e.target.value)}
-          />
           <TextField
             label="State"
             variant="outlined"
@@ -83,5 +99,30 @@ const AddItem = () => {
     </Container>
   );
 };
+
+const mutation = gql`
+  mutation createItem(
+    $itemId: Int!
+    $itemName: String!
+    $description: String!
+    $location: LocationInput!
+  ) {
+    createItem(
+      itemId: $itemId
+      itemName: $itemName
+      description: $description
+      location: $location
+    ) {
+      itemId
+      itemName
+      description
+      location {
+        state
+        address
+        phoneNumber
+      }
+    }
+  }
+`;
 
 export default AddItem;
