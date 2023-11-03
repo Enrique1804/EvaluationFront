@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import "../styles/styles.css";
@@ -30,6 +30,7 @@ const ItemTable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [addingItem, setAddingItem] = useState(false);
   const [deleItemMutation] = useMutation(mutation);
+  const navegar = useNavigate();
 
   const { loading, error, data, refetch } = useQuery(itemsTabla);
 
@@ -85,7 +86,7 @@ const ItemTable = () => {
           startIcon={<AddIcon />}
           onClick={handleOpenItemForm}
         >
-          Add
+          Añadir
         </Button>
       </div>
       <Typography fontWeight="bold">
@@ -105,10 +106,10 @@ const ItemTable = () => {
               <TableRow key={item.itemId}>
                 <TableCell>{item.itemId}</TableCell>
                 <TableCell>
-                  <Link to={`/items/${item.itemId}`}>{item.itemName}</Link>
+                  <Button onClick={() => (navegar(`/items/${item.itemId}`))}>{item.itemName}</Button>
                 </TableCell>
                 <TableCell>
-                  <IconButton color="secondary" onClick={() => handleDeleteItem(item.itemId)}>
+                  <IconButton data-testid={"delete-button" + item.itemId} color="secondary" onClick={() => handleDeleteItem(item.itemId)}>
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
@@ -135,7 +136,7 @@ const ItemTable = () => {
   );
 };
 
-const mutation = gql`
+export const mutation = gql`
   mutation deleteItem($itemId: Int!){
     deleteItem(itemId: $itemId){
       itemId

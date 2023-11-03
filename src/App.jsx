@@ -7,11 +7,18 @@ import {
   gql,
   createHttpLink,
 } from "@apollo/client";
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import ItemInfo from "./assets/Components/ItemInfo";
+import fetch from "cross-fetch";
 
 const httpLink = createHttpLink({
   uri: "http://localhost:4000/graphql",
+  fetch,
 });
 const client = new ApolloClient({
   link: httpLink,

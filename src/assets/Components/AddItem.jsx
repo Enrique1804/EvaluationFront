@@ -10,6 +10,7 @@ const AddItem = ({ onClose }) => {
   const [address, setAddress] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [createItemMutation] = useMutation(mutation);
+  const [crearOtroItem, setCrearOtroItem] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,7 +20,7 @@ const AddItem = ({ onClose }) => {
       phoneNumber,
     };
     try {
-      const { data } = await createItemMutation({
+      await createItemMutation({
         variables: {
           itemId: parseInt(itemId),
           itemName,
@@ -27,10 +28,16 @@ const AddItem = ({ onClose }) => {
           location,
         },
       });
-      onClose();
       console.log("Item creado");
+      setItemId("");      
+      setItemName("");
+      setDescription("");
+      setState("");
+      setAddress("");
+      setPhoneNumber("");
+      setCrearOtroItem(true);
     } catch (error) {
-      console.error("Error al crear el item");
+      console.error("Error al crear el item", error);
     }
   };
 
@@ -40,7 +47,7 @@ const AddItem = ({ onClose }) => {
       sx={{ "& .MuiTextField-root": { m: 1, width: "25ch" } }}
     >
       <br />
-      <Typography>Add a new Item</Typography>
+      <Typography>Añadir un nuevo Item</Typography>
       <Typography>Item Details</Typography>
       <form onSubmit={handleSubmit}>
         <Grid item xs={6}>
@@ -92,15 +99,39 @@ const AddItem = ({ onClose }) => {
         </Grid>
         <br />
         <Button type="submit" variant="contained" color="primary">
-          Add
+          Añadir Item
         </Button>
+        {crearOtroItem && (() => {
+          setItemId("");
+          setItemName("");
+          setDescription("");
+          setState("");
+          setAddress("");
+          setPhoneNumber("");
+        }) && (
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => {
+              setItemId("");
+              setItemName("");
+              setDescription("");
+              setState("");
+              setAddress("");
+              setPhoneNumber("");
+              setCrearOtroItem(false);
+            }}
+          >
+            Añadir otro Item
+          </Button>
+        )}
       </form>
       <br />
     </Container>
   );
 };
 
-const mutation = gql`
+export const mutation = gql`
   mutation createItem(
     $itemId: Int!
     $itemName: String!
